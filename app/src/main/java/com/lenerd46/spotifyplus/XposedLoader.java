@@ -11,14 +11,11 @@ import android.content.res.Resources;
 import android.content.res.XModuleResources;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.*;
 import android.widget.Button;
-import android.window.OnBackInvokedDispatcher;
-import androidx.appcompat.view.ContextThemeWrapper;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.lenerd46.spotifyplus.hooks.*;
@@ -35,6 +32,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class XposedLoader implements IXposedHookLoadPackage, IXposedHookZygoteInit, IXposedHookInitPackageResources {
     static {
@@ -43,14 +42,14 @@ public class XposedLoader implements IXposedHookLoadPackage, IXposedHookZygoteIn
 
     private DexKitBridge bridge;
     private String modulePath = null;
-    private static final String MODULE_VERSION = "0.5.2";
+    private static final String MODULE_VERSION = "0.6";
 
     @Override
     public void handleLoadPackage(LoadPackageParam lpparam) throws Throwable {
-        if(!lpparam.packageName.equals("com.spotify.music")) return;
+        if (!lpparam.packageName.equals("com.spotify.music")) return;
         XposedBridge.log("[SpotifyPlus] Loading SpotifyPlus v" + MODULE_VERSION);
 
-        if(bridge == null) {
+        if (bridge == null) {
             try {
                 bridge = DexKitBridge.create(lpparam.appInfo.sourceDir);
             } catch (Exception e) {
@@ -72,7 +71,7 @@ public class XposedLoader implements IXposedHookLoadPackage, IXposedHookZygoteIn
                 int requestCode = (int) param.args[0];
                 Intent data = (Intent) param.args[2];
 
-                if(requestCode == 9072022 && data != null) {
+                if (requestCode == 9072022 && data != null) {
                     Uri tree = data.getData();
                     ContentResolver content = ((Activity) param.thisObject).getContentResolver();
                     content.takePersistableUriPermission(tree, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
@@ -107,11 +106,53 @@ public class XposedLoader implements IXposedHookLoadPackage, IXposedHookZygoteIn
 
                 navigateToStartupPage(activity);
 
-                if(hasInternet(activity)) {
+                if (hasInternet(activity)) {
                     checkForUpdates(activity);
                 }
             }
         });
+
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
+        // ADD ANIMATED ALBUM ARTWORK!!!!!!!!!
 
         XposedHelpers.findAndHookMethod(Application.class, "attach", Context.class, new XC_MethodHook() {
             @Override
@@ -125,10 +166,13 @@ public class XposedLoader implements IXposedHookLoadPackage, IXposedHookZygoteIn
                 new BeautifulLyricsHook().init(lpparam, bridge);
                 new SocialHook().init(lpparam, bridge);
                 new RemoveCreateButtonHook(context).init(lpparam, bridge);
-                new ContextMenuHook().init(lpparam, bridge);
+//                new ContextMenuHook().init(lpparam, bridge);
 //                new PageInjectionDebugHook().init(lpparam, bridge);
 //                new PageInjectionHook().init(lpparam, bridge);
 //                new PremiumHook().init(lpparam, bridge);
+                new ContextMenuHookV2().init(lpparam, bridge);
+                new LastFmHook().init(lpparam, bridge);
+                new ContextMenu_AddButton().init(lpparam, bridge);
             }
         });
     }
@@ -147,7 +191,7 @@ public class XposedLoader implements IXposedHookLoadPackage, IXposedHookZygoteIn
         intent.setPackage("com.spotify.music");
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        switch(page) {
+        switch (page) {
             case "HOME":
                 intent.setData(Uri.parse("spotify:home"));
                 break;
@@ -183,12 +227,12 @@ public class XposedLoader implements IXposedHookLoadPackage, IXposedHookZygoteIn
                     connection.setRequestMethod("GET");
 
                     int responseCode = connection.getResponseCode();
-                    if(responseCode == HttpURLConnection.HTTP_OK) {
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
                         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
                         String inputLine;
                         StringBuilder response = new StringBuilder();
-                        while((inputLine = in.readLine()) != null) {
+                        while ((inputLine = in.readLine()) != null) {
                             response.append(inputLine);
                         }
 
@@ -205,47 +249,84 @@ public class XposedLoader implements IXposedHookLoadPackage, IXposedHookZygoteIn
                     String latest = json.get("tag_name").getAsString().replace("v", "");
                     String current = MODULE_VERSION;
 
-                    String[] latestParts = latest.split("\\.");
-                    String[] currentParts = current.split("\\.");
+                    if (isVersionGreater(latest, current)) {
+                        // New update available!
 
-                    for(int i = 0; i < Math.max(latestParts.length, currentParts.length); i++) {
-                        int latestNum = i < latestParts.length ? Integer.parseInt(latestParts[i]) : 0;
-                        int currentNum = i < currentParts.length ? Integer.parseInt(currentParts[i]) : 0;
+                        XModuleResources modResources = References.modResources;
+                        LayoutInflater inflater = LayoutInflater.from(activity);
+                        View dialogueView = inflater.inflate(modResources.getLayout(R.layout.dialogue_update), (ViewGroup) activity.getWindow().getDecorView(), false);
 
-                        if(latestNum > currentNum) {
-                            // New update available!
+                        Button download = dialogueView.findViewById(modResources.getIdentifier("download_button", "id", "com.lenerd46.spotifyplus"));
+                        Button later = dialogueView.findViewById(modResources.getIdentifier("later_button", "id", "com.lenerd46.spotifyplus"));
 
-                            XModuleResources modResources = References.modResources;
-                            LayoutInflater inflater = LayoutInflater.from(activity);
-                            View dialogueView = inflater.inflate(modResources.getLayout(R.layout.dialogue_update), (ViewGroup) activity.getWindow().getDecorView(), false);
+                        AlertDialog dialogue = new AlertDialog.Builder(activity).setView(dialogueView).create();
 
-                            Button download = dialogueView.findViewById(modResources.getIdentifier("download_button", "id", "com.lenerd46.spotifyplus"));
-                            Button later = dialogueView.findViewById(modResources.getIdentifier("later_button", "id", "com.lenerd46.spotifyplus"));
+                        later.setOnClickListener(v -> dialogue.dismiss());
 
-                            AlertDialog dialogue = new AlertDialog.Builder(activity).setView(dialogueView).create();
+                        download.setOnClickListener(v -> {
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/LeNerd46/SpotifyPlus/releases"));
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            activity.startActivity(intent);
+                            dialogue.dismiss();
+                        });
 
-                            later.setOnClickListener(v -> dialogue.dismiss());
+                        dialogue.show();
 
-                            download.setOnClickListener(v -> {
-                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/LeNerd46/SpotifyPlus/releases"));
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                activity.startActivity(intent);
-                                dialogue.dismiss();
-                            });
-
-                            dialogue.show();
-
-                            Window dialogueWindow = dialogue.getWindow();
-                            if(dialogueWindow != null) {
-                                int width = activity.getResources().getDisplayMetrics().widthPixels;
-                                dialogueWindow.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT);
-                            }
+                        Window dialogueWindow = dialogue.getWindow();
+                        if (dialogueWindow != null) {
+                            int width = activity.getResources().getDisplayMetrics().widthPixels;
+                            dialogueWindow.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT);
                         }
                     }
                 });
             });
         }
     }
+
+    private final Pattern LEADING_NUMBER = Pattern.compile("^(\\d+)");
+
+    public boolean isVersionGreater(String latest, String current) {
+        if (latest == null || current == null) return false;
+
+        String l = normalize(latest);
+        String c = normalize(current);
+
+        String[] la = l.split("\\.");
+        String[] ca = c.split("\\.");
+
+        int len = Math.max(la.length, ca.length);
+        for (int i = 0; i < len; i++) {
+            long lv = i < la.length ? parseSegment(la[i]) : 0L;
+            long cv = i < ca.length ? parseSegment(ca[i]) : 0L;
+            if (lv > cv) return true;
+            if (lv < cv) return false;
+        }
+        // equal
+        return false;
+    }
+
+    private String normalize(String s) {
+        s = s.trim();
+        if (s.startsWith("v") || s.startsWith("V")) s = s.substring(1);
+        // drop pre-release / build metadata (e.g. -beta, +build)
+        s = s.split("[-+]")[0];
+        return s;
+    }
+
+    private long parseSegment(String seg) {
+        seg = seg.trim();
+        Matcher m = LEADING_NUMBER.matcher(seg);
+        if (m.find()) {
+            try {
+                return Long.parseLong(m.group(1));
+            } catch (NumberFormatException e) {
+                // extremely large number; fallback
+                return 0L;
+            }
+        }
+        return 0L;
+    }
+
 
     public boolean hasInternet(Context ctx) {
         try {
@@ -278,7 +359,7 @@ public class XposedLoader implements IXposedHookLoadPackage, IXposedHookZygoteIn
     private void cleanUpCache(Context context) {
         File[] files = context.getCacheDir().listFiles();
 
-        for(File file : files) {
+        for (File file : files) {
             if (file.getName().endsWith(".apk")) {
                 file.delete();
             }
@@ -287,8 +368,9 @@ public class XposedLoader implements IXposedHookLoadPackage, IXposedHookZygoteIn
 
     @Override
     public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resparam) throws Throwable {
-        if(resparam.packageName.equals("com.spotify.music")) {
+        if (resparam.packageName.equals("com.spotify.music")) {
             References.modResources = XModuleResources.createInstance(modulePath, resparam.res);
+            References.xresources = resparam.res;
         }
     }
 }

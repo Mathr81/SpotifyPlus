@@ -1,15 +1,20 @@
 package com.lenerd46.spotifyplus.hooks;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.view.ViewTreeObserver;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
 import com.lenerd46.spotifyplus.ContextMenuItem;
+import com.lenerd46.spotifyplus.References;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
@@ -21,6 +26,7 @@ import org.luckypray.dexkit.query.matchers.FieldMatcher;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -135,10 +141,25 @@ public class ContextMenuHook extends SpotifyHook {
                         }
 
                         if (position == originalCount && originalCount > 0 && currentUri != null) {
-                            for(int i = 0; i < scriptItems.size(); i++) {
-                                final ContextMenuItem item = scriptItems.get(i);
+                            if(currentUri.split(":")[1].equals("track")) {
+                                // Bro this entire thing doesn't work anymore, wtf
 
-                                if(currentUri.split(":")[1].equals(item.type.toLowerCase())) {
+                                ContextMenuItem item = new ContextMenuItem(9172022, "Open Lyrics", "track", () -> {
+                                    Intent intent = new Intent();
+                                    intent.setClassName("com.spotify.music", "com.spotify.lyrics.fullscreenview.page.LyricsFullscreenPageActivity");
+
+                                    if(References.currentActivity != null) {
+                                        References.currentActivity.startActivity(intent);
+                                    } else {
+                                        XposedBridge.log("[SpotifyPlus] Failed to open lyrics page");
+                                    }
+                                });
+
+                                addCustomItem(viewHolder, item);
+                            }
+
+                            for (final ContextMenuItem item : scriptItems) {
+                                if (currentUri.split(":")[1].equals(item.type.toLowerCase())) {
                                     addCustomItem(viewHolder, item);
                                 }
                             }
@@ -274,7 +295,6 @@ public class ContextMenuHook extends SpotifyHook {
 
     private @Nullable String findItemText(View v) {
         if (v instanceof TextView) {
-            // Covers TextView, EncoreTextView, etc.
             return ((TextView) v).getText().toString();
         }
         if (v instanceof ViewGroup) {
@@ -285,5 +305,50 @@ public class ContextMenuHook extends SpotifyHook {
             }
         }
         return null;
+    }
+
+    private View findAncestor(View v, String className) {
+        View cur = v;
+        while(cur != null) {
+            if(cur.getClass().getName().equals(className)) return cur;
+
+            ViewParent parent = cur.getParent();
+            cur = (parent instanceof View) ? (View) parent : null;
+        }
+
+        return null;
+    }
+
+    // Find which direct child of 'sheet' contains 'v'
+    private int topLevelChildIndex(ViewGroup sheet, View v) {
+        View cur = v;
+        View prev = v;
+        // climb to the direct child under 'sheet'
+        while (cur != null && cur.getParent() instanceof View && cur.getParent() != sheet) {
+            prev = cur;
+            cur = (View) cur.getParent();
+        }
+        if (cur == null || !(cur.getParent() == sheet)) return -1;
+        View directChild = cur; // the container that lives directly under sheet
+        for (int i = 0; i < sheet.getChildCount(); i++) {
+            if (sheet.getChildAt(i) == directChild) return i;
+        }
+        return -1;
+    }
+
+    // Customize however you want:
+    private String transformSubtitle(String s) {
+        // Example 1: replace artist • album with just album
+        //   "Taylor Swift • The Life of a Showgirl" -> "The Life of a Showgirl"
+        int sep = s.indexOf(" • ");
+        if (sep >= 0 && sep + 3 < s.length()) {
+            return s.substring(sep + 3);
+        }
+
+        // Example 2: append badge
+        // return s + " — Beautiful Lyrics";
+
+        // Default: no change
+        return s;
     }
 }

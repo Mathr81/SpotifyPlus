@@ -396,9 +396,16 @@ public class BeautifulLyricsHook extends SpotifyHook {
                 }
             } catch (Exception e) {
                 XposedBridge.log(e);
+                Toast.makeText(activity, "Failed to get lyrics", Toast.LENGTH_SHORT).show();
+                return;
             }
 
             String content = finalContent;
+            if(content.isBlank()) {
+                Toast.makeText(activity, "No lyrics found for this song", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             handler.post(() -> {
                 JsonObject jsonObject = new JsonParser().parseString(content).getAsJsonObject();
                 String type = jsonObject.get("Type").getAsString();
@@ -415,6 +422,8 @@ public class BeautifulLyricsHook extends SpotifyHook {
                     ctor.setAccessible(true);
                 } catch (Exception e) {
                     XposedBridge.log(e);
+                    Toast.makeText(activity, "Failed to load lyrics", Toast.LENGTH_SHORT).show();
+                    return;
                 }
 
                 if (type.equals("Syllable")) {
@@ -475,6 +484,9 @@ public class BeautifulLyricsHook extends SpotifyHook {
                     // This is pretty pointless
                     // If Spotify doesn't have lyrics, you can't open this page
                     // And it's very likely that if a song has static lyrics, Spotify won't have the lryics
+                    // I redact my statement, there have been a few times that I've seen static lyrics
+                    // And hey, guess what? It actually works!
+                    // I wrote this code and never cared enough to go find a song to test it on
 
                     StaticSyncedLyrics providerLyrics = gson.fromJson(content, StaticSyncedLyrics.class);
 

@@ -70,7 +70,8 @@ public class ScriptManager extends SpotifyHook {
                     new SpotifyPlayer(this.scriptScope, lpparm, bridge),
                     new Debug(),
                     new PreferencesApi(),
-                    new StorageApi(moduleContext)
+                    new StorageApi(moduleContext),
+                    new UIManager()
             );
 
             for(SpotifyPlusApi api : apis) {

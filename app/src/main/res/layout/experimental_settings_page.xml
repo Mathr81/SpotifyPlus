@@ -22,7 +22,7 @@
                 android:background="#272727"
                 android:gravity="center"
                 app:titleCentered="true"
-                app:title="Experimental Settings"
+                app:title="Experimental"
                 app:titleTextAppearance="@style/TextAppearance.Material3.TitleMedium"
                 app:navigationIcon="?attr/homeAsUpIndicator"/>
     </com.google.android.material.appbar.AppBarLayout>
@@ -65,7 +65,7 @@
                             style="@style/TextAppearance.Material3.BodySmall"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Enables a new scrolling system, vewry similar to Apple Music"
+                            android:text="Enables a new scrolling system, very similar to Apple Music"
                             android:textColor="?attr/colorOnSurfaceVariant"/>
                 </LinearLayout>
 

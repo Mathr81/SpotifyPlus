@@ -12,6 +12,32 @@ menuItem.register();
 // const ui: ScriptUI = new ScriptUI("bookmarks", "com.lenerd46.bookmarksscript");
 var button = new SideDrawerItem("Bookmarks", function () {
     // ui.show("bookmark_page");
+    // const layout = ui.createLinearLayout();
+    // layout.setBackgroundColor(ui.parseColor("#000000"));
+
+    // const text = ui.createTextView();
+    // text.setText("Hello World!");
+    // text.setGravity(11);
+    // text.setTextSize(26);
+    
+    // layout.addView(text);
+    // ui.attachToRoot(layout);
+
+    var uiManager = new ScriptUI("test", "com.lenerd46.bookmarksscript");
+    var page = uiManager.show("bookmark_page");
+    var container = uiManager.findViewById("container", page);
+
+    for (var i = 0; i < 5; i++) {
+        var item = uiManager.create("bookmark_item");
+        var title = uiManager.findViewById("title_field", item);
+        var artist = uiManager.findViewById("artist_field", item);
+
+        title.setText("Track Title " + (i + 1));
+        artist.setText("Artist Name " + (i + 1));
+
+        container.addView(item);
+    }
+
     savedTracks.forEach(function (item) {
         console.log(item);
     });

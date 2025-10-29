@@ -22,7 +22,7 @@
                 android:background="#272727"
                 android:gravity="center"
                 app:titleCentered="true"
-                app:title="Beautiful Lyrics Settings"
+                app:title="Beautiful Lyrics"
                 app:titleTextAppearance="@style/TextAppearance.Material3.TitleMedium"
                 app:navigationIcon="?attr/homeAsUpIndicator"/>
     </com.google.android.material.appbar.AppBarLayout>

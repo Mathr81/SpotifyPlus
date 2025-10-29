@@ -52,7 +52,7 @@
                 </LinearLayout>
 
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                          android:text="5.1.2" android:layout_marginEnd="8dp" android:layout_gravity="center_vertical"/>
+                          android:text="0.6" android:layout_marginEnd="8dp" android:layout_gravity="center_vertical"/>
             </LinearLayout>
 
             <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:orientation="horizontal">
@@ -75,6 +75,26 @@
                         android:id="@+id/open_github"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:src="@drawable/open_in_new" android:layout_gravity="center_vertical" android:paddingEnd="8dp" />
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:orientation="horizontal">
+                <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" android:layout_gravity="center_vertical"
+                        android:orientation="vertical">
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Made With ♡ By"
+                            android:textColor="@color/white"
+                            android:textSize="15sp"
+                            android:paddingBottom="4dp"/>
+                </LinearLayout>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                          android:text="LeNerd46" android:layout_marginEnd="8dp" android:layout_gravity="center_vertical"/>
             </LinearLayout>
         </LinearLayout>
     </FrameLayout>

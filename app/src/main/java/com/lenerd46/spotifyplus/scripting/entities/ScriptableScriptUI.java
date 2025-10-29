@@ -31,7 +31,8 @@ public class ScriptableScriptUI extends ScriptableObject {
     private String packageName;
     private View root;
 
-    public ScriptableScriptUI() { }
+    public ScriptableScriptUI() {
+    }
 
     @Override
     public String getClassName() {
@@ -53,7 +54,7 @@ public class ScriptableScriptUI extends ScriptableObject {
 
         DocumentFile scriptFolder = directory.findFile(name);
 
-        if(scriptFolder != null && scriptFolder.exists() && scriptFolder.isDirectory()) {
+        if (scriptFolder != null && scriptFolder.exists() && scriptFolder.isDirectory()) {
             DocumentFile apk = scriptFolder.findFile(path + ".apk");
             String path1 = getAboslutePath(apk, activity);
             XposedBridge.log("[SpotifyPlus] " + path);
@@ -63,7 +64,7 @@ public class ScriptableScriptUI extends ScriptableObject {
     }
 
     @JSFunction
-    public void show(String resource) {
+    public View show(String resource) {
         try {
             activity.runOnUiThread(() -> {
                 var layout = res.getLayout(res.getIdentifier(resource, "layout", this.packageName));
@@ -71,8 +72,27 @@ public class ScriptableScriptUI extends ScriptableObject {
                 root = inflater.inflate(layout, (ViewGroup) activity.getWindow().getDecorView(), false);
                 ((ViewGroup) activity.getWindow().getDecorView()).addView(root);
             });
+
+            return root;
         } catch (Exception e) {
             XposedBridge.log("[SpotifyPlus] Failed to show UI: " + e);
+            return null;
+        }
+    }
+
+    @JSFunction
+    public View create(String resource) {
+        try {
+            activity.runOnUiThread(() -> {
+                var layout = res.getLayout(res.getIdentifier(resource, "layout", this.packageName));
+                LayoutInflater inflater = LayoutInflater.from(activity);
+                root = inflater.inflate(layout, (ViewGroup) activity.getWindow().getDecorView(), false);
+            });
+
+            return root;
+        } catch (Exception e) {
+            XposedBridge.log("[SpotifyPlus] Failed to show UI: " + e);
+            return null;
         }
     }
 
@@ -80,7 +100,7 @@ public class ScriptableScriptUI extends ScriptableObject {
     public void hide() {
         try {
             activity.runOnUiThread(() -> {
-                ((ViewGroup)activity.getWindow().getDecorView()).removeView(root);
+                ((ViewGroup) activity.getWindow().getDecorView()).removeView(root);
             });
         } catch (Exception e) {
             XposedBridge.log("[SpotifyPlus] Failed to hide UI: " + e);
@@ -92,7 +112,7 @@ public class ScriptableScriptUI extends ScriptableObject {
         try {
             activity.runOnUiThread(() -> {
                 View view = root.findViewById(res.getIdentifier(id, "id", this.packageName));
-                if(view instanceof ImageView) {
+                if (view instanceof ImageView) {
                     ((ImageView) view).setImageDrawable(res.getDrawable(res.getIdentifier(resource, "drawable", this.packageName)));
                 } else {
                     XposedBridge.log("[SpotifyPlus] View '" + id + "' is not an ImageView");
@@ -111,13 +131,32 @@ public class ScriptableScriptUI extends ScriptableObject {
             org.mozilla.javascript.Context ctx = org.mozilla.javascript.Context.enter();
 
             try {
-                callback.call(ctx, getParentScope(), getParentScope(), new Object[]{ });
-            } catch(Exception e) {
+                callback.call(ctx, getParentScope(), getParentScope(), new Object[]{});
+            } catch (Exception e) {
                 XposedBridge.log(e);
             } finally {
                 org.mozilla.javascript.Context.exit();
             }
         });
+    }
+
+    @JSFunction
+    public View findViewById(String id, Object view) {
+        Object javaObject = org.mozilla.javascript.Context.jsToJava(view, View.class);
+
+        if (javaObject instanceof View) {
+            View viewItem = ((View)javaObject).findViewById(res.getIdentifier(id, "id", this.packageName));
+
+            if (viewItem == null) {
+                XposedBridge.log("[SpotifyPlus] Failed to find view with id: " + id);
+                return null;
+            }
+
+            return viewItem;
+        }
+
+        XposedBridge.log("[SpotifyPlus] Provided view is not a valid view group");
+        return null;
     }
 
     private String getAboslutePath(DocumentFile file, Context context) {

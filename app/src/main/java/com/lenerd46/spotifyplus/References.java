@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.XModuleResources;
+import android.content.res.XResources;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
@@ -37,6 +38,7 @@ public class References {
     public static WeakReference<String> accessToken = new WeakReference<>(null);
     public static WeakReference<Typeface> beautifulFont = new WeakReference<>(null);
     public static XModuleResources modResources = null;
+    public static XResources xresources = null;
 
     private static final Pattern DIGITS = Pattern.compile("\\d+");
     private static Method hasTrackMethod;

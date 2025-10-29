@@ -256,3 +256,35 @@ declare enum MediaType {
   Album = "album",
   Artist = "artist",
 }
+
+/** Helper functions to create UI views */
+declare const ui: {
+  parseColor(color: string): number;
+  attachToRoot(view: any): void;
+  createTextView(): any;
+  createButton(): any;
+  createImageView(): any;
+  createEditText(): any;
+  createSwitch(): any;
+  createCheckBox(): any;
+  createRadioButton(): any;
+  createProgressBar(): any;
+  createSeekBar(): any;
+  createRatingBar(): any;
+
+  createLinearLayout(): any;
+  createFrameLayout(): any;
+  createRelativeLayout(): any;
+  createScrollView(): any;
+  createRecyclerView(): any;
+  createCardView(): any;
+  createViewPager2(): any;
+
+  createAlertDialog(): any;
+  createSpinner(): any;
+  createAutoCompleteTextView(): any;
+  createDatePicker(): any;
+  createTimePicker(): any;
+  createSpace(): any;
+  createView(): any;
+}

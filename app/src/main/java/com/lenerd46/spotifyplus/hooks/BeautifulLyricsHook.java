@@ -282,7 +282,7 @@ public class BeautifulLyricsHook extends SpotifyHook {
                 lineSprings.clear();
                 lineAnimationStartTimes.clear();
 
-                if(mainLoop != null && mainLoop.isAlive()) {
+                if (mainLoop != null && mainLoop.isAlive()) {
                     mainLoop.interrupt();
                     mainLoop = null;
                 }
@@ -360,10 +360,17 @@ public class BeautifulLyricsHook extends SpotifyHook {
 
                 if (prefs.getBoolean("lyric_enable_background", true)) {
                     if (albumArt != null) { // Clearly I don't seem to care if it's null or not (line 290)
-                        AnimatedBackgroundView background = new AnimatedBackgroundView(activity, albumArt, root);
-                        background.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+                        if (prefs.getBoolean("experiment_background", true)) {
+                            AnimatedBackgroundView background = new AnimatedBackgroundView(activity, albumArt, root);
+                            background.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 
-                        activity.runOnUiThread(() -> root.addView(background));
+                            activity.runOnUiThread(() -> root.addView(background));
+                        } else {
+                            OldAnimatedBackgroundView background = new OldAnimatedBackgroundView(activity, albumArt, root);
+                            background.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+
+                            activity.runOnUiThread(() -> root.addView(background));
+                        }
                     }
                 } else {
                     FrameLayout background = new FrameLayout(activity);
@@ -401,7 +408,7 @@ public class BeautifulLyricsHook extends SpotifyHook {
             }
 
             String content = finalContent;
-            if(content.isBlank()) {
+            if (content.isBlank()) {
                 Toast.makeText(activity, "No lyrics found for this song", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -430,7 +437,7 @@ public class BeautifulLyricsHook extends SpotifyHook {
                     renderSyllableLyrics(activity, content, lyricsContainer, track);
                 } else if (type.equals("Line")) {
                     SharedPreferences prefs = activity.getSharedPreferences("SpotifyPlus", Context.MODE_PRIVATE);
-                    if (prefs.getBoolean("lyrics_check_custom", true)) {
+                    if (prefs.getBoolean("lyrics_check_custom", false)) {
                         OkHttpClient client = new OkHttpClient();
                         Request request = new Request.Builder().url("https://spotifyplus.lenerd.tech/api/lyrics/" + track.uri.split(":")[2]).get().build();
 

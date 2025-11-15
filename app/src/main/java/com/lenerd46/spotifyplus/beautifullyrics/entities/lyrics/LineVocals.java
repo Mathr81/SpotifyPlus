@@ -29,6 +29,7 @@ public class LineVocals implements SyncableVocals {
     private Spline glowSpline;
     private final Spring glowSpring;
     private final SharedPreferences prefs;
+    private final boolean lineGradient;
 
     private final List<Pair<Double, Double>> glowRange = List.of(
             Pair.create(0d, 0d),
@@ -61,9 +62,11 @@ public class LineVocals implements SyncableVocals {
         lyricText.setPadding(0, 0, 1, 0);
         lyricText.setTypeface(References.beautifulFont.get());
 
-        if(vocal.oppositeAligned) {
+        if (vocal.oppositeAligned) {
             lyricText.setTextAlignment(GradientTextView.TEXT_ALIGNMENT_TEXT_END);
         }
+
+        lineGradient = prefs.getBoolean("lyric_enable_line_gradient", true);
 
         container.addView(lyricText);
         setToGeneralState(false);
@@ -82,7 +85,7 @@ public class LineVocals implements SyncableVocals {
     private void updateLiveTextState(double timeScale, boolean forceTo) {
         double glowAlpha = glowSpline.at(timeScale);
 
-        if(forceTo) {
+        if (forceTo) {
             glowSpring.set(glowAlpha);
         } else {
             glowSpring.finalPosition = glowAlpha;
@@ -90,26 +93,28 @@ public class LineVocals implements SyncableVocals {
     }
 
     private boolean updateLiveTextVisuals(double timeScale, double deltaTime) {
-        float glowAlpha = (float)glowSpring.update(deltaTime);
+        float glowAlpha = (float) glowSpring.update(deltaTime);
 
-        lyricText.updateShadow(glowAlpha * 0.5f, 4 + (8 * glowAlpha));
-        lyricText.setProgress((float)(120 * timeScale));
+        if (lineGradient) {
+            lyricText.updateShadow(glowAlpha * 0.5f, 4 + (8 * glowAlpha));
+            lyricText.setProgress((float) (120 * timeScale));
+        }
 
         return glowSpring.sleeping;
     }
 
     private void evaluateClassState() {
-        if(state == LyricState.ACTIVE) {
+        if (state == LyricState.ACTIVE) {
             lyricText.setTextColor(Color.argb(255, 255, 255, 255));
-            lyricText.setGradientColors(prefs.getBoolean("lyric_enable_line_gradient", true) ? new int[] { 0xFFFFFFFF, 0x78FFFFFF } : new int[] { 0xFFFFFFFF, 0xFFFFFFFF});
-        } else if(state == LyricState.SUNG) {
+            lyricText.setGradientColors(lineGradient ? new int[]{0xFFFFFFFF, 0x78FFFFFF} : new int[]{0xFFFFFFFF, 0xFFFFFFFF});
+        } else if (state == LyricState.SUNG) {
             lyricText.setTextColor(Color.argb(100, 255, 255, 255));
             lyricText.updateShadow(0f, 0f);
 
 //            updateLiveTextVisuals(0, 1.0 / 60);
         } else {
             lyricText.setTextColor(Color.argb(255, 255, 255, 255));
-            lyricText.setGradientColors(new int[] { 0xFFFFFFFF, 0x3CFFFFFF});
+            lyricText.setGradientColors(new int[]{0xFFFFFFFF, 0x3CFFFFFF});
 
 //            updateLiveTextVisuals(0, 1.0 / 60);
         }
@@ -118,7 +123,7 @@ public class LineVocals implements SyncableVocals {
     @Override
     public void animate(double songTimestamp, double deltaTime, boolean isImmediate) {
         double relativeTime = songTimestamp - this.startTime;
-        double timeScale = Math.max(0, Math.min((double)relativeTime / (double)this.duration, 1.0));
+        double timeScale = Math.max(0, Math.min((double) relativeTime / (double) this.duration, 1.0));
 
         boolean pastStart = relativeTime >= 0;
         boolean beforeEnd = relativeTime <= this.duration;
@@ -129,30 +134,30 @@ public class LineVocals implements SyncableVocals {
         boolean stateChanged = stateNow != this.state;
         boolean shouldUpdateVisualState = stateChanged || isActive || isImmediate;
 
-        if(stateChanged) {
+        if (stateChanged) {
             this.state = stateNow;
             evaluateClassState();
 
-            if(this.state == LyricState.ACTIVE) {
+            if (this.state == LyricState.ACTIVE) {
                 activityChanged.invoke(new ScrollInformation(container, isImmediate));
             }
-        } else if(this.state == LyricState.ACTIVE && isImmediate) {
+        } else if (this.state == LyricState.ACTIVE && isImmediate) {
             activityChanged.invoke(new ScrollInformation(container, true));
         }
 
-        if(shouldUpdateVisualState) {
+        if (shouldUpdateVisualState) {
             this.isSleeping = false;
 
             updateLiveTextState(timeScale, (isImmediate || (relativeTime < 0)));
         }
 
-        if(!this.isSleeping) {
+        if (!this.isSleeping) {
             boolean isSleeping = updateLiveTextVisuals(timeScale, deltaTime);
 
-            if(isSleeping) {
+            if (isSleeping) {
                 this.isSleeping = true;
 
-                if(!this.active) {
+                if (!this.active) {
                     evaluateClassState();
                 }
             }

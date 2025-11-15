@@ -77,6 +77,46 @@
                         android:checked="true"
                         android:contentDescription="Use new scrolling animation"/>
             </LinearLayout>
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp"
+                    android:clickable="true" android:focusable="true"
+                    android:background="@drawable/row_click_bg">
+
+                <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Use New Animated Background"
+                            android:textColor="@color/white"
+                            android:textSize="15sp"
+                            android:paddingBottom="4dp"/>
+
+                    <TextView
+                            style="@style/TextAppearance.Material3.BodySmall"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Enables a new animated background. This should lead to better performance, however it does flicker sometimes"
+                            android:textColor="?attr/colorOnSurfaceVariant"/>
+                </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switch_new_background"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="8dp"
+                        android:checked="true"
+                        android:contentDescription="Use new scrolling animation"/>
+            </LinearLayout>
         </LinearLayout>
     </FrameLayout>
 </com.google.android.material.circularreveal.coordinatorlayout.CircularRevealCoordinatorLayout>

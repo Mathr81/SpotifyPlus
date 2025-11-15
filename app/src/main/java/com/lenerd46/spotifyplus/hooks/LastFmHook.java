@@ -3,6 +3,7 @@ package com.lenerd46.spotifyplus.hooks;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -91,10 +92,11 @@ public class LastFmHook extends SpotifyHook {
                         final String key = title + "|" + artist;
 
                         if(subtitle.contains("scrobbles")) return;
+                        References.contextMenuTrack = new WeakReference<>(Pair.create(artist, title));
 
                         Activity activity = References.currentActivity;
                         OkHttpClient client = new OkHttpClient();
-                        Request request = null;
+                        Request request;
 
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {                                      //  Yeah I know this is bad, but whatever
                             request = new Request.Builder().url("https://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=3713c2e0b7493e945555b7f52dc4232e&artist=" + URLEncoder.encode(artist, StandardCharsets.UTF_8) + "&track=" + URLEncoder.encode(title, StandardCharsets.UTF_8) + "&format=json&user=" + URLEncoder.encode(username, StandardCharsets.UTF_8)).build();

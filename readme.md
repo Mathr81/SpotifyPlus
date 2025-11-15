@@ -32,6 +32,9 @@ For Non Rooted Phones:
 7. Force stop Spotify
 8. Enjoy the new features!
 
+> [!NOTE]
+> The latest recommended version of Spotify to use is v9.0.90.1229. The module is not guaranteed to work past this version
+
 ## Main Features
 * Beautiful Lyrics!
 * There's a couple other smaller things that I don't really feel like writing down

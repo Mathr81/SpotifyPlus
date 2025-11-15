@@ -8,6 +8,7 @@ import android.content.res.XResources;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import com.lenerd46.spotifyplus.beautifullyrics.entities.PlayerStateUpdatedListener;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
@@ -37,6 +38,7 @@ public class References {
     public static WeakReference<Object> playerStateWrapper = new WeakReference<>(null);
     public static WeakReference<String> accessToken = new WeakReference<>(null);
     public static WeakReference<Typeface> beautifulFont = new WeakReference<>(null);
+    public static WeakReference<Pair<String, String>> contextMenuTrack = new WeakReference<>(null);
     public static XModuleResources modResources = null;
     public static XResources xresources = null;
 

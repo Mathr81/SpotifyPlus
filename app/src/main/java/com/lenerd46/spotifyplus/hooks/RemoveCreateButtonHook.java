@@ -274,9 +274,10 @@ public class RemoveCreateButtonHook extends SpotifyHook {
                     Object[] originalItemsWithNull = (Object[]) d.get(param.thisObject);
                     if (originalItemsWithNull == null) return;
                     Object[] originalItems = Arrays.stream(originalItemsWithNull).filter(Objects::nonNull).toArray(Object[]::new);
-                    if ((originalItems.length != 4 && originalItems.length != 6) || originalItems[0].getClass() != buttonClass)
-                        return;
-                    isNewSideDrawer = originalItems.length == 6;
+
+                    // This should work in theory. Spotify seems to keep changing the amount of buttons, sooo
+                    if ((originalItems.length < 4) || originalItems[0].getClass() != buttonClass) return;
+                    isNewSideDrawer = originalItems.length >= 6 && originalItems.length != 12;
 
                     Object newArray = Array.newInstance(buttonClass, originalItems.length + 2 + scriptSideButtons.size());
 
@@ -284,7 +285,7 @@ public class RemoveCreateButtonHook extends SpotifyHook {
                         Array.set(newArray, i, originalItems[i]);
                     }
 
-                    Object tempalte = originalItems[isNewSideDrawer ? 4 : originalItems.length - 1];
+                    Object tempalte = originalItems[isNewSideDrawer ? originalItems.length - 2 : originalItems.length - 1];
                     Object tempalteLightning = originalItems[isNewSideDrawer ? 2 : 1];
 
                     Array.set(newArray, originalItems.length, createSideDrawerButton("Spotify Plus Settings", tempalte, buttonClass, sideDrawerItem, propertiesClass, onClickClass, qbpInterface, zpj0Interface, cbpInterface, 2131957897, () -> {
@@ -540,7 +541,7 @@ public class RemoveCreateButtonHook extends SpotifyHook {
                                 MaterialSwitch lineGradient = view.findViewById(R.id.switch_enable_line_gradient);
 
                                 MaterialSwitch sendToken = view.findViewById(R.id.switch_send_token);
-                                MaterialSwitch userLyrics = view.findViewById(R.id.switch_check_user_lyrics);
+//                                MaterialSwitch userLyrics = view.findViewById(R.id.switch_check_user_lyrics);
 
                                 background.setOnCheckedChangeListener((button, value) -> {
                                     prefs.edit().putBoolean("lyric_enable_background", value).apply();
@@ -554,9 +555,9 @@ public class RemoveCreateButtonHook extends SpotifyHook {
                                     prefs.edit().putBoolean("lyrics_send_token", value).apply();
                                 });
 
-                                userLyrics.setOnCheckedChangeListener((button, value) -> {
-                                    prefs.edit().putBoolean("lyrics_check_custom", value).apply();
-                                });
+//                                userLyrics.setOnCheckedChangeListener((button, value) -> {
+//                                    prefs.edit().putBoolean("lyrics_check_custom", value).apply();
+//                                });
 
                                 String style = prefs.getString("lyric_animation_style", "Beautiful Lyrics");
                                 visualBeautiful.setChecked(style.equals("Beautiful Lyrics"));
@@ -571,7 +572,7 @@ public class RemoveCreateButtonHook extends SpotifyHook {
                                 lineGradient.setChecked(prefs.getBoolean("lyric_enable_line_gradient", true));
 
                                 sendToken.setChecked(prefs.getBoolean("lyrics_send_token", true));
-                                userLyrics.setChecked(prefs.getBoolean("lyrics_check_custom", false));
+//                                userLyrics.setChecked(prefs.getBoolean("lyrics_check_custom", false));
                             });
 
                             experimentalSettings.setOnClickListener(v -> {
@@ -597,6 +598,14 @@ public class RemoveCreateButtonHook extends SpotifyHook {
                                 });
 
                                 scrollingAnimation.setChecked(prefs.getBoolean("experiment_scroll", false));
+
+                                MaterialSwitch newBackground = view.findViewById(R.id.switch_new_background);
+
+                                newBackground.setOnCheckedChangeListener((button, value) -> {
+                                    prefs.edit().putBoolean("experiment_background", value).apply();
+                                });
+
+                                newBackground.setChecked(prefs.getBoolean("experiment_background", true));
                             });
 
                             scriptingSettings.setOnClickListener(v -> {
@@ -655,7 +664,7 @@ public class RemoveCreateButtonHook extends SpotifyHook {
                         }
                     }));
 
-                    Array.set(newArray, originalItems.length + 1, createSideDrawerButton("Marketplace", tempalteLightning, buttonClass, sideDrawerItem, propertiesClass, onClickClass, qbpInterface, zpj0Interface, cbpInterface, 2131957896, () -> XposedBridge.log("[SpotifyPlus] Hello!")));
+//                    Array.set(newArray, originalItems.length + 1, createSideDrawerButton("Marketplace", tempalteLightning, buttonClass, sideDrawerItem, propertiesClass, onClickClass, qbpInterface, zpj0Interface, cbpInterface, 2131957896, () -> XposedBridge.log("[SpotifyPlus] Hello!")));
 
                     int index = originalItems.length + 2;
 
@@ -723,7 +732,6 @@ public class RemoveCreateButtonHook extends SpotifyHook {
             Object originalOnClick = null;
             if (isNewSideDrawer) {
                 Class<?> vjwCls = bridge.findClass(FindClass.create().matcher(ClassMatcher.create().usingStrings("Could not retrieve pinned shortcuts"))).get(0).getInstance(lpparm.classLoader).getSuperclass();
-                XposedBridge.log("[SpotifyPlus] Class Name: " + vjwCls.getName());
 
                 for (Field f : originalBwd0.getClass().getDeclaredFields()) {
                     f.setAccessible(true);

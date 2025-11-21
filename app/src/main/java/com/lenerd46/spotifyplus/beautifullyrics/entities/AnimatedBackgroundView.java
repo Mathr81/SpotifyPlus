@@ -65,7 +65,7 @@ public class AnimatedBackgroundView extends View {
     public AnimatedBackgroundView(Context ctx, Bitmap bitmap, ViewGroup root) {
         super(ctx);
         this.root = root;
-        setLayerType(LAYER_TYPE_HARDWARE, null);
+        setLayerType(LAYER_TYPE_SOFTWARE, null);
 
         this.sourceImage = (bitmap != null) ? bitmap : Bitmap.createBitmap(1,1, Bitmap.Config.ARGB_8888);
 

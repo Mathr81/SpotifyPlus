@@ -32,7 +32,7 @@ jobs:
 
       - name: Build Release APK
         env:
-          SIGNING_KEY_STORE_PATH: "app/release.jks"
+          SIGNING_KEY_STORE_PATH: "${{ github.workspace }}/app/release.jks"
           SIGNING_KEY_STORE_PASSWORD: ${{ secrets.SIGNING_KEY_STORE_PASSWORD }}
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}

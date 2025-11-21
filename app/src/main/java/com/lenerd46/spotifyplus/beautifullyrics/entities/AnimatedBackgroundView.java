@@ -193,39 +193,33 @@ public class AnimatedBackgroundView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        final Bitmap current;
-        final Bitmap prev;
-        final long   tStart;
 
         synchronized (swapLock) {
-            current = renderedBitmap;
-            prev    = previousBitmap;
-            tStart  = transitionStartMs;
-        }
+            final Bitmap current = renderedBitmap;
+            final Bitmap prev    = previousBitmap;
+            final long   tStart  = transitionStartMs;
 
-        if (current == null) {
-            canvas.drawColor(baseColor);
-            return;
-        }
+            if (current == null) {
+                canvas.drawColor(baseColor);
+                return;
+            }
 
-        Rect dst = new Rect(0, 0, getWidth(), getHeight());
+            Rect dst = new Rect(0, 0, getWidth(), getHeight());
 
-        if (isTransitioning && prev != null) {
-            float p = Math.min((SystemClock.elapsedRealtime() - tStart) / (float) TRANSITION_DURATION_MS, 1f);
+            if (isTransitioning && prev != null) {
+                float p = Math.min((SystemClock.elapsedRealtime() - tStart) / (float) TRANSITION_DURATION_MS, 1f);
 
-            paint.setAlpha((int)((1f - p) * 255)); canvas.drawBitmap(prev, null, dst, paint);
-            paint.setAlpha((int)(p * 255));        canvas.drawBitmap(current, null, dst, paint);
-            paint.setAlpha(255);
+                paint.setAlpha((int)((1f - p) * 255)); canvas.drawBitmap(prev, null, dst, paint);
+                paint.setAlpha((int)(p * 255));        canvas.drawBitmap(current, null, dst, paint);
+                paint.setAlpha(255);
 
-            if (p >= 1f) {
-                isTransitioning = false;
-
-                synchronized (swapLock) {
+                if (p >= 1f) {
+                    isTransitioning = false;
                     if (previousBitmap != null) { previousBitmap.recycle(); previousBitmap = null; }
                 }
+            } else {
+                canvas.drawBitmap(current, null, dst, null);
             }
-        } else {
-            canvas.drawBitmap(current, null, dst, null);
         }
     }
 

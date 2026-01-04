@@ -1,0 +1,13 @@
+package com.mathr81.spotifyplus.beautifullyrics.entities.interludes;
+
+import android.widget.LinearLayout;
+
+public class MainLiveText {
+    public final LinearLayout object;
+    public final MainSprings springs;
+
+    public MainLiveText(LinearLayout object, MainSprings springs) {
+        this.object = object;
+        this.springs = springs;
+    }
+}

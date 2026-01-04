@@ -53,47 +53,6 @@
                 <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Check For Updates"
-                        android:textColor="@color/white"
-                        android:textSize="15sp"
-                        android:paddingBottom="4dp"
-                />
-
-                <TextView
-                        style="@style/TextAppearance.Material3.BodySmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Whether to check for updates on start"
-                        android:textColor="?attr/colorOnSurfaceVariant"/>
-            </LinearLayout>
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/switch_check_update"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingEnd="8dp"
-                    android:checked="true"
-                    android:contentDescription="Check for updates"/>
-        </LinearLayout>
-
-        <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="8dp"
-                android:clickable="true" android:focusable="true"
-                android:background="@drawable/row_click_bg">
-
-            <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:text="Set Last.fm Username"
                         android:textColor="@color/white"
                         android:textSize="15sp"

@@ -11,7 +11,7 @@ const menuItem = new ContextMenuItem("Add to Bookmarks", MediaType.Track, (id: s
 });
 
 menuItem.register();
-// const ui: ScriptUI = new ScriptUI("bookmarks", "com.lenerd46.bookmarksscript");
+// const ui: ScriptUI = new ScriptUI("bookmarks", "com.mathr81.bookmarksscript");
 
 const button: SideDrawerItem = new SideDrawerItem("Bookmarks", () => {
     // ui.show("bookmark_page");

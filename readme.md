@@ -6,7 +6,7 @@ This project is still very early in development, many features are still not imp
 </div>
 
 ## What Is Spotify Plus
-For right now, Spotify Plus is an Xposed module that adds beautiful lyrics inside of Spotify. The beautiful lyrics are heavily based on the [beautiful lyrics](https://github.com/surfbryce/beautiful-lyrics) extension by [Surfbryce](https://github.com/surfbryce). A lot of this I learned from my other project of porting that extension to a [standalone mobile app](https://github.com/LeNerd46/beautiful-lyrics-mobile).
+For right now, Spotify Plus is an Xposed module that adds beautiful lyrics inside of Spotify. The beautiful lyrics are heavily based on the [beautiful lyrics](https://github.com/surfbryce/beautiful-lyrics) extension by [Surfbryce](https://github.com/surfbryce). A lot of this I learned from my other project of porting that extension to a [standalone mobile app](https://github.com/Mathr81/beautiful-lyrics-mobile).
 
 ## Getting Started
 Requirements:

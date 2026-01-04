@@ -9,7 +9,7 @@ var menuItem = new ContextMenuItem("Add to Bookmarks", "track", function (id) {
     Storage.write("bookmarks.json", JSON.stringify(savedTracks, null, 2));
 });
 menuItem.register();
-// const ui: ScriptUI = new ScriptUI("bookmarks", "com.lenerd46.bookmarksscript");
+// const ui: ScriptUI = new ScriptUI("bookmarks", "com.mathr81.bookmarksscript");
 var button = new SideDrawerItem("Bookmarks", function () {
     // ui.show("bookmark_page");
     // const layout = ui.createLinearLayout();
@@ -23,7 +23,7 @@ var button = new SideDrawerItem("Bookmarks", function () {
     // layout.addView(text);
     // ui.attachToRoot(layout);
 
-    var uiManager = new ScriptUI("test", "com.lenerd46.bookmarksscript");
+    var uiManager = new ScriptUI("test", "com.mathr81.bookmarksscript");
     var page = uiManager.show("bookmark_page");
     var container = uiManager.findViewById("container", page);
 

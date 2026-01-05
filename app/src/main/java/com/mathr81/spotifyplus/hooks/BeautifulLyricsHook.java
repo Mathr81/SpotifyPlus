@@ -384,26 +384,43 @@ public class BeautifulLyricsHook extends SpotifyHook {
                 }
 
                 boolean sendAccessToken = prefs.getBoolean("sendAccessToken", true);
-
                 String id = track.uri.split(":")[2];
-                URL url = new URL("https://beautiful-lyrics.socalifornian.live/lyrics/" + id);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-
                 String token = References.accessToken.get();
-                connection.setRequestProperty("Authorization", "Bearer " + (((token != null && !token.isEmpty()) && sendAccessToken) ? token : "0"));
+                String bearerToken = (((token != null && !token.isEmpty()) && sendAccessToken) ? token : "0");
 
-                int responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                // Construct Spicy Lyrics Job JSON
+                JsonObject jobArgs = new JsonObject();
+                jobArgs.addProperty("id", id);
+                jobArgs.addProperty("auth", "SpicyLyrics-WebAuth");
 
-                    String inputLine;
-                    StringBuilder response = new StringBuilder();
-                    while ((inputLine = in.readLine()) != null) {
-                        response.append(inputLine);
+                JsonObject job = new JsonObject();
+                job.addProperty("handler", "lyrics");
+                job.addProperty("processId", "0");
+                job.add("args", jobArgs);
+
+                com.google.gson.JsonArray jobsArray = new com.google.gson.JsonArray();
+                jobsArray.add(job);
+
+                JsonObject clientInfo = new JsonObject();
+                clientInfo.addProperty("version", "5.18.61");
+
+                JsonObject rootQuery = new JsonObject();
+                rootQuery.add("jobs", jobsArray);
+                rootQuery.add("client", clientInfo);
+
+                OkHttpClient client = new OkHttpClient();
+                RequestBody body = RequestBody.create(rootQuery.toString(), MediaType.get("application/json; charset=utf-8"));
+                Request request = new Request.Builder()
+                        .url("https://api.spicylyrics.org/query")
+                        .post(body)
+                        .addHeader("SpicyLyrics-WebAuth", "Bearer " + bearerToken)
+                        .addHeader("SpicyLyrics-Version", "5.18.61")
+                        .build();
+
+                try (Response response = client.newCall(request).execute()) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        finalContent = response.body().string();
                     }
-                    in.close();
-                    finalContent = response.toString();
                 }
             } catch (Exception e) {
                 XposedBridge.log(e);
@@ -426,8 +443,24 @@ public class BeautifulLyricsHook extends SpotifyHook {
             }
 
             handler.post(() -> {
-                JsonObject jsonObject = new JsonParser().parseString(content).getAsJsonObject();
-                String type = jsonObject.get("Type").getAsString();
+                String lyricsJson;
+                String type;
+                try {
+                    JsonObject rootResponse = new JsonParser().parseString(content).getAsJsonObject();
+                    JsonObject responseData = rootResponse.getAsJsonArray("jobs").get(0).getAsJsonObject()
+                            .get("result").getAsJsonObject()
+                            .get("responseData").getAsJsonObject();
+                    type = responseData.get("Type").getAsString();
+                    lyricsJson = responseData.toString();
+                } catch (Exception e) {
+                    XposedBridge.log("[SpotifyPlus] Failed to parse Spicy Lyrics response: " + e.getMessage());
+                    activity.runOnUiThread(() -> {
+                        Toast.makeText(activity, "No lyrics found for this song", Toast.LENGTH_SHORT).show();
+                        if (overlayGrid != null) root.removeView(overlayGrid);
+                        if (backgroundView[0] != null) root.removeView(backgroundView[0]);
+                    });
+                    return;
+                }
 
                 try {
                     Class<?> requestClass = bridge.findClass(FindClass.create().matcher(ClassMatcher.create().modifiers(Modifier.PUBLIC | Modifier.FINAL).fieldCount(1).addField(FieldMatcher.create().modifiers(Modifier.PUBLIC | Modifier.FINAL).type(long.class)).methods(MethodsMatcher.create()
@@ -450,7 +483,7 @@ public class BeautifulLyricsHook extends SpotifyHook {
                 }
 
                 if (type.equals("Syllable")) {
-                    renderSyllableLyrics(activity, content, lyricsContainer, track);
+                    renderSyllableLyrics(activity, lyricsJson, lyricsContainer, track);
                 } else if (type.equals("Line")) {
                     SharedPreferences prefs = activity.getSharedPreferences("SpotifyPlus", Context.MODE_PRIVATE);
                     if (prefs.getBoolean("lyrics_check_custom", false)) {
@@ -462,15 +495,15 @@ public class BeautifulLyricsHook extends SpotifyHook {
                             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                                 if (response.isSuccessful()) {
                                     XposedBridge.log("[SpotifyPlus] Loading lyrics from SpotifyPlus server");
-                                    String content = response.body().string();
+                                    String customContent = response.body().string();
 
                                     lyricsContainer.post(() -> {
-                                        renderSyllableLyrics(activity, content, lyricsContainer, track);
+                                        renderSyllableLyrics(activity, customContent, lyricsContainer, track);
                                     });
                                 } else {
                                     // Otherwise, no lyrics found. Continue
                                     lyricsContainer.post(() -> {
-                                        renderLineLyrics(activity, content, lyricsContainer, track);
+                                        renderLineLyrics(activity, lyricsJson, lyricsContainer, track);
                                     });
                                 }
                             }
@@ -481,7 +514,7 @@ public class BeautifulLyricsHook extends SpotifyHook {
                             }
                         });
                     } else {
-                        renderLineLyrics(activity, content, lyricsContainer, track);
+                        renderLineLyrics(activity, lyricsJson, lyricsContainer, track);
 
                         OkHttpClient client = new OkHttpClient();
                         Request request = new Request.Builder().url("https://spotifyplus.lenerd.tech/api/lyrics/" + track.uri.split(":")[2]).get().build();

@@ -403,13 +403,13 @@ public class BeautifulLyricsHook extends SpotifyHook {
                 }
             } catch (Exception e) {
                 XposedBridge.log(e);
-                Toast.makeText(activity, "Failed to get lyrics", Toast.LENGTH_SHORT).show();
+                activity.runOnUiThread(() -> Toast.makeText(activity, "Failed to get lyrics", Toast.LENGTH_SHORT).show());
                 return;
             }
 
             String content = finalContent;
             if (content.isBlank()) {
-                Toast.makeText(activity, "No lyrics found for this song", Toast.LENGTH_SHORT).show();
+                activity.runOnUiThread(() -> Toast.makeText(activity, "No lyrics found for this song", Toast.LENGTH_SHORT).show());
                 return;
             }
 
@@ -1133,12 +1133,13 @@ public class BeautifulLyricsHook extends SpotifyHook {
                         @Override
                         public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                             if (response.isSuccessful()) {
-                                Toast.makeText(activity, "Lyrics Uploaded!", Toast.LENGTH_LONG).show();
+                                activity.runOnUiThread(() -> {
+                                    Toast.makeText(activity, "Lyrics Uploaded!", Toast.LENGTH_LONG).show();
+                                    activity.onBackPressed();
+                                });
                                 XposedBridge.log("[SpotifyPlus] Success!");
-
-                                activity.onBackPressed();
                             } else {
-                                Toast.makeText(activity, "Failed to upload lyrics", Toast.LENGTH_LONG).show();
+                                activity.runOnUiThread(() -> Toast.makeText(activity, "Failed to upload lyrics", Toast.LENGTH_LONG).show());
                                 XposedBridge.log("[SpotifyPlus] " + response.code() + " " + response.message());
                             }
                         }

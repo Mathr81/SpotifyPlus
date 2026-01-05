@@ -140,18 +140,18 @@ public class LastFmHook extends SpotifyHook {
                                         });
                                     } catch (Exception e) {
                                         XposedBridge.log("[SpotifyPlus] Failed to fetch scrobbles");
-                                        Toast.makeText(activity, "Failed to fetch scrobbles", Toast.LENGTH_SHORT).show();
+                                        activity.runOnUiThread(() -> Toast.makeText(activity, "Failed to fetch scrobbles", Toast.LENGTH_SHORT).show());
                                     }
                                 } else {
                                     XposedBridge.log("[SpotifyPlus] Failed to fetch scrobbles");
-                                    Toast.makeText(activity, "Failed to fetch scrobbles", Toast.LENGTH_SHORT).show();
+                                    activity.runOnUiThread(() -> Toast.makeText(activity, "Failed to fetch scrobbles", Toast.LENGTH_SHORT).show());
                                 }
                             }
 
                             @Override
                             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                                 XposedBridge.log("[SpotifyPlus] Failed to fetch scrobbles");
-                                Toast.makeText(activity, "Failed to fetch scrobbles", Toast.LENGTH_SHORT).show();
+                                activity.runOnUiThread(() -> Toast.makeText(activity, "Failed to fetch scrobbles", Toast.LENGTH_SHORT).show());
                             }
                         });
                     } catch (Exception e) {

@@ -33,6 +33,8 @@ public class Debug implements SpotifyPlusApi {
 
     public void toast(String message) {
         Activity activity = References.currentActivity;
-        Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+        if (activity != null) {
+            activity.runOnUiThread(() -> Toast.makeText(activity, message, Toast.LENGTH_SHORT).show());
+        }
     }
 }

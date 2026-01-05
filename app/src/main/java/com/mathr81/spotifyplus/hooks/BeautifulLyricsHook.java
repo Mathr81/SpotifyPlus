@@ -264,7 +264,7 @@ public class BeautifulLyricsHook extends SpotifyHook {
                             root.addView(grid, -2);
                             XposedBridge.log("[SpotifyPlus] Loaded Beautiful Lyrics UI");
 
-                            renderLyrics(activity, track, layout, root, cover);
+                            renderLyrics(activity, track, layout, root, cover, grid);
                         } catch (Throwable t) {
                             XposedBridge.log(t);
                         }
@@ -343,7 +343,7 @@ public class BeautifulLyricsHook extends SpotifyHook {
         }
     }
 
-    private void renderLyrics(Activity activity, SpotifyTrack track, LinearLayout lyricsContainer, ViewGroup root, ImageView albumView) {
+    private void renderLyrics(Activity activity, SpotifyTrack track, LinearLayout lyricsContainer, ViewGroup root, ImageView albumView, View overlayGrid) {
         vocalGroups = new HashMap<>();
 
         ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -351,6 +351,7 @@ public class BeautifulLyricsHook extends SpotifyHook {
 
         executorService.execute(() -> {
             String finalContent = "";
+            final View[] backgroundView = {null};
 
             try {
                 SharedPreferences prefs = activity.getSharedPreferences("SpotifyPlus", Context.MODE_PRIVATE);
@@ -363,11 +364,13 @@ public class BeautifulLyricsHook extends SpotifyHook {
                         if (prefs.getBoolean("experiment_background", true)) {
                             AnimatedBackgroundView background = new AnimatedBackgroundView(activity, albumArt, root);
                             background.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+                            backgroundView[0] = background;
 
                             activity.runOnUiThread(() -> root.addView(background));
                         } else {
                             OldAnimatedBackgroundView background = new OldAnimatedBackgroundView(activity, albumArt, root);
                             background.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+                            backgroundView[0] = background;
 
                             activity.runOnUiThread(() -> root.addView(background));
                         }
@@ -375,6 +378,7 @@ public class BeautifulLyricsHook extends SpotifyHook {
                 } else {
                     FrameLayout background = new FrameLayout(activity);
                     background.setBackgroundColor(Color.parseColor("#" + track.color));
+                    backgroundView[0] = background;
 
                     activity.runOnUiThread(() -> root.addView(background));
                 }
@@ -403,13 +407,21 @@ public class BeautifulLyricsHook extends SpotifyHook {
                 }
             } catch (Exception e) {
                 XposedBridge.log(e);
-                activity.runOnUiThread(() -> Toast.makeText(activity, "Failed to get lyrics", Toast.LENGTH_SHORT).show());
+                activity.runOnUiThread(() -> {
+                    Toast.makeText(activity, "Failed to get lyrics", Toast.LENGTH_SHORT).show();
+                    if (overlayGrid != null) root.removeView(overlayGrid);
+                    if (backgroundView[0] != null) root.removeView(backgroundView[0]);
+                });
                 return;
             }
 
             String content = finalContent;
             if (content.isBlank()) {
-                activity.runOnUiThread(() -> Toast.makeText(activity, "No lyrics found for this song", Toast.LENGTH_SHORT).show());
+                activity.runOnUiThread(() -> {
+                    Toast.makeText(activity, "No lyrics found for this song", Toast.LENGTH_SHORT).show();
+                    if (overlayGrid != null) root.removeView(overlayGrid);
+                    if (backgroundView[0] != null) root.removeView(backgroundView[0]);
+                });
                 return;
             }
 
@@ -429,7 +441,11 @@ public class BeautifulLyricsHook extends SpotifyHook {
                     ctor.setAccessible(true);
                 } catch (Exception e) {
                     XposedBridge.log(e);
-                    Toast.makeText(activity, "Failed to load lyrics", Toast.LENGTH_SHORT).show();
+                    activity.runOnUiThread(() -> {
+                        Toast.makeText(activity, "Failed to load lyrics", Toast.LENGTH_SHORT).show();
+                        if (overlayGrid != null) root.removeView(overlayGrid);
+                        if (backgroundView[0] != null) root.removeView(backgroundView[0]);
+                    });
                     return;
                 }
 

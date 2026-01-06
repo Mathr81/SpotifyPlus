@@ -45,47 +45,49 @@ public class SettingsFlyoutHook extends SpotifyHook {
     public void hook() {
         try {
             var drawerClass = bridge.findClass(FindClass.create().matcher(ClassMatcher.create().usingStrings("getDrawerState()I")));
-            var method = bridge.findMethod(FindMethod.create().searchInClass(drawerClass).matcher(MethodMatcher.create().returnType(void.class).modifiers(Modifier.PUBLIC | Modifier.FINAL).paramCount(0).annotationCount(0))).get(0).getMethodInstance(lpparm.classLoader);
-
-            XposedBridge.hookMethod(method, new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    try {
-                        FrameLayout fl = (FrameLayout) bridge.findField(FindField.create().searchInClass(drawerClass).matcher(FieldMatcher.create().modifiers(Modifier.PUBLIC | Modifier.FINAL).type(FrameLayout.class))).get(0).getFieldInstance(lpparm.classLoader).get(param.thisObject);
-                        Object drawer = param.thisObject;
+            var methods = bridge.findMethod(FindMethod.create().searchInClass(drawerClass).matcher(MethodMatcher.create().returnType(void.class).modifiers(Modifier.PUBLIC).paramCount(0).annotationCount(0)));
+            
+            for (var m : methods) {
+                XposedBridge.hookMethod(m.getMethodInstance(lpparm.classLoader), new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        try {
+                            FrameLayout fl = (FrameLayout) bridge.findField(FindField.create().searchInClass(drawerClass).matcher(FieldMatcher.create().modifiers(Modifier.PUBLIC | Modifier.FINAL).type(FrameLayout.class))).get(0).getFieldInstance(lpparm.classLoader).get(param.thisObject);
+                            Object drawer = param.thisObject;
 //                        FrameLayout fl = (FrameLayout)XposedHelpers.getObjectField(drawer, "R0");
 
-                        if(prefs == null) {
-                            prefs = References.getPreferences();
-                        }
+                            if(prefs == null) {
+                                prefs = References.getPreferences();
+                            }
 
-                        LinearLayout settings = createSpotifyButton(0x12032022, "Spotify Plus Settings", createSettingsIcon(), fl);
-                        if(settings != null) {
-                            settings.setOnClickListener(v -> {
-                                showSettingsPage();
-                            });
-                        }
-
-                        LinearLayout marketplace = createSpotifyButton(0x4f524f52, "Marketplace", createMarketplaceIcon(), fl);
-                        if(marketplace != null) {
-                            marketplace.setOnClickListener(v -> {
-                                showMarketplace();
-                            });
-                        }
-
-                        if(prefs.getBoolean("social_enabled", false)) {
-                            LinearLayout social = createSpotifyButton(0x09172022, "Friends", createUsersIcon(), fl);
-                            if(social != null) {
-                                social.setOnClickListener(v -> {
-                                    SocialHook.showSocialPage();
+                            LinearLayout settings = createSpotifyButton(0x12032022, "Spotify Plus Settings", createSettingsIcon(), fl);
+                            if(settings != null) {
+                                settings.setOnClickListener(v -> {
+                                    showSettingsPage();
                                 });
                             }
+
+                            LinearLayout marketplace = createSpotifyButton(0x4f524f52, "Marketplace", createMarketplaceIcon(), fl);
+                            if(marketplace != null) {
+                                marketplace.setOnClickListener(v -> {
+                                    showMarketplace();
+                                });
+                            }
+
+                            if(prefs.getBoolean("social_enabled", false)) {
+                                LinearLayout social = createSpotifyButton(0x09172022, "Friends", createUsersIcon(), fl);
+                                if(social != null) {
+                                    social.setOnClickListener(v -> {
+                                        SocialHook.showSocialPage();
+                                    });
+                                }
+                            }
+                        } catch(Throwable t) {
+                            XposedBridge.log(t);
                         }
-                    } catch(Throwable t) {
-                        XposedBridge.log(t);
                     }
-                }
-            });
+                });
+            }
         } catch (Exception e) {
             XposedBridge.log(e);
         }
